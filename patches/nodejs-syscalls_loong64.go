@@ -39,6 +39,6 @@ var ALLOW_NETWORK_SYSCALLS = []int{
 	syscall.SYS_GETSOCKNAME, syscall.SYS_SETSOCKOPT, syscall.SYS_GETSOCKOPT,
 	syscall.SYS_SENDMMSG, syscall.SYS_RECVMSG,
 	syscall.SYS_GETPEERNAME, syscall.SYS_PPOLL, syscall.SYS_UNAME,
-	syscall.SYS_LSEEK,
+	syscall.SYS_STATX, syscall.SYS_LSEEK,
 	syscall.SYS_FSTATFS,
 }

@@ -52,5 +52,5 @@ var ALLOW_NETWORK_SYSCALLS = []int{
 	syscall.SYS_RECVFROM, syscall.SYS_RECVMSG, syscall.SYS_GETSOCKOPT,
 	syscall.SYS_GETSOCKNAME, syscall.SYS_GETPEERNAME, syscall.SYS_SETSOCKOPT,
 	syscall.SYS_PPOLL, syscall.SYS_UNAME, syscall.SYS_SENDMMSG,
-	syscall.SYS_FSTATFS, syscall.SYS_EPOLL_PWAIT,
+	syscall.SYS_STATX, syscall.SYS_FSTATFS, syscall.SYS_EPOLL_PWAIT,
 }

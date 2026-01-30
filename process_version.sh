@@ -37,6 +37,7 @@ prepare()
 build()
 {
     pushd "$SRCS/$VERSION" > /dev/null
+    go mod tidy
     ./build/build_loong64.sh
     popd > /dev/null
 }
