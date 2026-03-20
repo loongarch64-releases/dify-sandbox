@@ -5,6 +5,8 @@
 # -o pipefail: 管道失败即退出
 set -euo pipefail
 
+UPSTREAM_OWNER=langgenius
+UPSTREAM_REPO=dify-sandbox
 VERSION="${1}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -37,6 +39,8 @@ docker run --rm \
     -e VERSION="${VERSION}" \
     -e UPSTREAM_OWNER="${UPSTREAM_OWNER}" \
     -e UPSTREAM_REPO="${UPSTREAM_REPO}" \
+    -e HOST_UID=$(id -u) \
+    -e HOST_GID=$(id -g) \
     "${DOCKER_IMAGE_NAME}" \
     /bin/bash -c "./scripts/build.sh $VERSION"
 
