@@ -3,17 +3,18 @@ set -euo pipefail
 
 UPSTREAM_OWNER=langgenius
 UPSTREAM_REPO=dify-sandbox
+VERSION="${1}"
 echo "   🏢 Org:   ${UPSTREAM_OWNER}"
 echo "   📦 Proj:  ${UPSTREAM_REPO}"
 echo "   🏷️  Ver:   ${VERSION}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+ROOT_DIR="$(dirname "${SCRIPT_DIR}")"
 DISTS="${ROOT_DIR}/dists"
 SRCS="${ROOT_DIR}/srcs"
 PATCHES="${ROOT_DIR}/patches"
 
-mkdir -p "${DISTS}/${VERSION}" "${SRCS}/${VERSION}"
+mkdir -p "${DISTS}/${VERSION}" "${SRCS}"
 
 # ==========================================
 # 👇 用户自定义构建逻辑 (示例)
@@ -21,10 +22,13 @@ mkdir -p "${DISTS}/${VERSION}" "${SRCS}/${VERSION}"
 
 echo "🔧 Compiling ${UPSTREAM_OWNER}/${UPSTREAM_REPO} ${VERSION}..."
 
+# 1. 准备阶段：安装依赖、下载代码、应用补丁等
 prepare()
 {
     echo "📦 [Prepare] Setting up build environment..."
-
+    
+    [ -d "${SRCS}/${VERSION}" ] && rm -rf "${SRCS}/${VERSION}"
+    mkdir -p "${SRCS}/${VERSION}"
     wget -O "${SRCS}/${VERSION}.tar.gz" --quiet --show-progress "https://github.com/${UPSTREAM_OWNER}/${UPSTREAM_REPO}/archive/refs/tags/${VERSION}.tar.gz"
     tar -xzf "${SRCS}/${VERSION}.tar.gz" -C "${SRCS}/${VERSION}" --strip-components=1
 
@@ -32,7 +36,7 @@ prepare()
     cp "${PATCHES}/nodejs-syscalls_loong64.go" "${SRCS}/${VERSION}/internal/static/nodejs_syscall/syscalls_loong64.go"
     cp "${PATCHES}/config_default_loong64.go" "${SRCS}/${VERSION}/internal/static/"
     cp "${PATCHES}/seccomp_syscall_loong64.go" "${SRCS}/${VERSION}/internal/core/lib/"
-    
+
     cp "${SRCS}/${VERSION}/build/build_amd64.sh" "${SRCS}/${VERSION}/build/build_loong64.sh"
     sed -i 's/amd64/loong64/g' "${SRCS}/${VERSION}/build/build_loong64.sh"
     chmod +x "${SRCS}/${VERSION}/build/build_loong64.sh"
@@ -40,28 +44,31 @@ prepare()
     echo "✅ [Prepare] Environment ready."
 }
 
+# 2. 编译阶段：核心构建命令
 build()
 {
     echo "🔨 [Build] Compiling source code..."
-
-    pushd "${SRCS}/${VERSION}" > /dev/null
+    
+    pushd "${SRCS}/${VERSION}"
     go mod tidy
     ./build/build_loong64.sh
-    popd > /dev/null
+    popd
 
     echo "✅ [Build] Compilation finished."
 }
 
+# 3. 后处理阶段：整理产物、清理临时文件、验证版本
 post_build()
 {
     echo "📦 [Post-Build] Organizing artifacts..."
-
+    
     cp "${SRCS}/${VERSION}/main" "${SRCS}/${VERSION}/env" "$DISTS/${VERSION}/"
     chown -R "${HOST_UID}:${HOST_GID}" "${DISTS}" "${SRCS}"
-
-    echo "✅ [Post-Build] Artifacts ready in ./dists."
+    
+    echo "✅ [Post-Build] Artifacts ready in ./dists/${VERSION}."
 }
 
+# 主入口
 main()
 {
     prepare
@@ -70,7 +77,6 @@ main()
 }
 
 main
-
 
 # ==========================================
 # 👆 自定义逻辑结束
@@ -84,4 +90,4 @@ Build Time: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 EOF
 
 echo "✅ Compilation finished."
-ls -lh "${DISTS}"
+ls -lh "${DISTS}/${VERSION}"

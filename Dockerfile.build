@@ -11,6 +11,4 @@ RUN apt-get update && apt-get install -y \
     libseccomp-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /workspace
-
 CMD ["/bin/bash"]

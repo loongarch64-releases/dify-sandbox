@@ -39,8 +39,8 @@ docker run --rm \
     -e VERSION="${VERSION}" \
     -e UPSTREAM_OWNER="${UPSTREAM_OWNER}" \
     -e UPSTREAM_REPO="${UPSTREAM_REPO}" \
-    -e HOST_UID=$(id -u) \
-    -e HOST_GID=$(id -g) \
+    -e HOST_UID="$(id -u)" \
+    -e HOST_GID="$(id -g)" \
     "${DOCKER_IMAGE_NAME}" \
     /bin/bash -c "./scripts/build.sh $VERSION"
 
